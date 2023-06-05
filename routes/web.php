@@ -24,5 +24,17 @@ Route::middleware(['auth', 'role:student'])->group(function () {
     // Add your routes for students here
 });
 
+
+// ...
+
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::get('/dashboard', function () {
+        return view('dashboard');
+    })->name('dashboard');
+});
+
+// ...
+
+
 // Include the auth routes
 require __DIR__.'/auth.php';
