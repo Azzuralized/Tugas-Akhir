@@ -16,72 +16,76 @@ use Illuminate\View\View;
 class RegisteredUserController extends Controller
 {
     /**
-     * Display the student registration view.
+     * Show the student registration form.
      */
-    public function createStudent(): View
+    public function showStudentRegistrationForm(): View
     {
         return view('auth.register-student');
     }
 
-    /**
-     * Handle a student registration request.
-     *
-     * @throws \Illuminate\Validation\ValidationException
-     */
-    public function storeStudent(Request $request): RedirectResponse
-    {
-        $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
-            'password' => ['required', 'confirmed', Rules\Password::defaults()],
-        ]);
+  /**
+ * Handle a student registration request.
+ *
+ * @throws \Illuminate\Validation\ValidationException
+ */
+public function registerStudent(Request $request): RedirectResponse
+{
+    $request->validate([
+        'name' => ['required', 'string', 'max:255'],
+        'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
+        'password' => ['required', 'confirmed', Rules\Password::defaults()],
+    ]);
 
-        $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-            'type' => 'student', // Set the user type as 'student'
-        ]);
+    // Create a new User instance
+    $user = new User();
+    $user->name = $request->name;
+    $user->email = $request->email;
+    $user->password = Hash::make($request->password);
+    $user->type = 'student';
 
-        event(new Registered($user));
+    // Save the user record in the database
+    $user->save();
 
-        Auth::login($user);
+    // Fire the registered event
+    event(new Registered($user));
 
-        return redirect(RouteServiceProvider::HOME);
-    }
+    // Log in the user
+    Auth::login($user);
 
-    /**
-     * Display the teacher registration view.
-     */
-    public function createTeacher(): View
-    {
-        return view('auth.register-teacher');
-    }
+    // Redirect the user after registration
+    return redirect(RouteServiceProvider::HOME);
+}
 
-    /**
-     * Handle a teacher registration request.
-     *
-     * @throws \Illuminate\Validation\ValidationException
-     */
-    public function storeTeacher(Request $request): RedirectResponse
-    {
-        $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
-            'password' => ['required', 'confirmed', Rules\Password::defaults()],
-        ]);
+/**
+ * Handle a teacher registration request.
+ *
+ * @throws \Illuminate\Validation\ValidationException
+ */
+public function registerTeacher(Request $request): RedirectResponse
+{
+    $request->validate([
+        'name' => ['required', 'string', 'max:255'],
+        'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
+        'password' => ['required', 'confirmed', Rules\Password::defaults()],
+    ]);
 
-        $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-            'type' => 'teacher', // Set the user type as 'teacher'
-        ]);
+    // Create a new User instance
+    $user = new User();
+    $user->name = $request->name;
+    $user->email = $request->email;
+    $user->password = Hash::make($request->password);
+    $user->type = 'teacher';
 
-        event(new Registered($user));
+    // Save the user record in the database
+    $user->save();
 
-        Auth::login($user);
+    // Fire the registered event
+    event(new Registered($user));
 
-        return redirect(RouteServiceProvider::HOME);
-    }
+    // Log in the user
+    Auth::login($user);
+
+    // Redirect the user after registration
+    return redirect(RouteServiceProvider::HOME);
+}
 }
